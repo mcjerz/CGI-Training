@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile default="true" name="Default" enabled="true" />
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="ekart-service-registry" />
+        <module name="ekart-api-gateway" />
+      </profile>
+      <profile name="Annotation profile for product-rest-api" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.22/lombok-1.18.22.jar" />
+          <entry name="$MAVEN_REPOSITORY$/org/mapstruct/mapstruct-processor/1.4.2.Final/mapstruct-processor-1.4.2.Final.jar" />
+          <entry name="$MAVEN_REPOSITORY$/org/mapstruct/mapstruct/1.4.2.Final/mapstruct-1.4.2.Final.jar" />
+        </processorPath>
+        <module name="payment-rest-api" />
+        <module name="product-rest-api" />
+        <module name="order-rest-api" />
+      </profile>
+    </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="ekart-api-gateway" target="1.8" />
+      <module name="ekart-service-registry" target="1.8" />
+      <module name="order-rest-api" target="1.8" />
+      <module name="payment-rest-api" target="1.8" />
+      <module name="product-rest-api" target="1.8" />
+    </bytecodeTargetLevel>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="ekart-api-gateway" options="-parameters" />
+      <module name="ekart-service-registry" options="-parameters" />
+      <module name="order-rest-api" options="-parameters -Amapstruct.defaultComponentModel=spring" />
+      <module name="payment-rest-api" options="-parameters -Amapstruct.defaultComponentModel=spring" />
+      <module name="product-rest-api" options="-parameters -Amapstruct.defaultComponentModel=spring" />
+    </option>
+  </component>
+</project>

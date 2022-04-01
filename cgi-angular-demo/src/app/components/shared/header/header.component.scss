@@ -1,0 +1,45 @@
+header {
+  height: 70px;
+background-color: #cde2ff;
+
+
+  .header {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 70px;
+    padding: 0 16px;
+
+    .header-top {
+
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex: 1 0 auto;
+
+      h3, p {
+        color: #fff;
+        margin: 0;
+      }
+    }
+
+    .header-bottom {
+      padding-bottom: 8px;
+      ul {
+        margin: 0;
+        padding: 0;
+
+        li {
+          display: inline;
+          list-style: none;
+          cursor: pointer;
+          padding-right: 16px;
+
+          &:last-of-type {
+            padding-right: 0;
+          }
+        }
+      }
+    }
+  }
+}

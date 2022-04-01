@@ -1,0 +1,21 @@
+<div class="product">
+  <div>
+    {{ product?.name }} - {{ product?.description }} - {{ product?.price | currency: "USD"}}
+  </div>
+  <div>
+
+<mat-icon
+  aria-hidden="false"
+  aria-label="Edit product"
+  (click)="onProductEdit()">
+  edit
+</mat-icon>
+    <mat-icon
+      aria-hidden="false"
+      aria-label="Delete product"
+      (click)="onProductRemove()">
+      delete
+    </mat-icon>
+
+  </div>
+</div>
