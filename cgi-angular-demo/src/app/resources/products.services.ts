@@ -1,8 +1,10 @@
 import {Injectable} from "@angular/core";
-import {HttpClient, HttpErrorResponse, HttpParams} from "@angular/common/http";
-import {BehaviorSubject, Observable} from "rxjs";
+
+import { HttpClient, HttpHeaders } from "@angular/common/http";
+import {Observable, of} from "rxjs";
 import { catchError, map, tap  } from "rxjs/operators";
-import {Product, ProductRequest} from "./products.types";
+import { Product, ProductRequest } from "./products.types";
+import { MessageService } from "./message.service";
 
 @Injectable({
   providedIn: 'root'
@@ -13,52 +15,111 @@ export class ProductsServices
 
 
   constructor(
-    private _httpClient: HttpClient
+    private _httpClient: HttpClient,
+    private _messageService: MessageService
   ) {}
 
 
   /* -- PROPERTIES -- */
-  private _baseUrl = 'http://localhost:8085';
-  private _products: Product[] = [];
+  private _baseUrl = 'api/products';
 
 
-/* -- GETTERS & SETTERS -- */
-  public get products(): Product[] {
-    return this._products;
-}
+httpOptions = {
+  headers: new HttpHeaders({ 'Content-Type': 'application/json' })
+};
+
 
   /* -- PUBLIC METHODS -- */
-  public createProduct(body: ProductRequest): Observable<void> {
 
-    return this._httpClient.post<ProductRequest>(`${this._baseUrl}` + '/api/products', body).pipe(
-      map((response: any) => console.log(response))
-    )
+
+
+
+  /* GET product list */
+  public getProducts(): Observable<Product[]> {
+
+    return this._httpClient.get<Product[]>(this._baseUrl)
+      .pipe(
+        tap(_ => this.log('fetched products')),
+        catchError(this._handleError<Product[]>('getProducts', []))
+    );
   }
 
-  public retrieveProducts(): Observable<Product[]> {
-
-    return this._httpClient.get<Product[]>(`${this._baseUrl}` + '/api/products').pipe(
-      map((response: Product[]) => {
-        this._products = response;
-        return this._products;
-      })
-    )
+  /* GET product by id w/ 404 response */
+  getProductById(id: number): Observable<Product> {
+    const url = `${this._baseUrl}/${id}`;
+    return this._httpClient.get<Product>(url)
+      .pipe(
+        tap(_ => this.log(`fetched product id=${id}`)),
+        catchError(this._handleError<Product>(`getProduct id=${id}`))
+      );
   }
 
-  public updateProduct(body: ProductRequest): Observable<void> {
+  /* GET product by search term */
+  searchProducts(term: string): Observable<Product[]> {
+    if (!term.trim()) {
+      // if term not found, return empty array
+      return of([]);
+    }
+    return this._httpClient.get<Product[]>(`${this._baseUrl}/?name=${term}`)
+      .pipe(
+        tap(x => x.length ?
+        this.log(`found products matching "${term}"`) :
+        this.log(`no products matching "${term}"`)),
+        catchError(this._handleError<Product[]>(`searchProducts`, []))
+      )
 
-    return this._httpClient.put<ProductRequest>(`${this._baseUrl}`, body).pipe(
-      map((response: any) =>
-      console.log(response))
-    )
   }
 
-  public removeProduct(): Observable<void> {
+  /**** SAVE methods ***/
 
-    return this._httpClient.delete<ProductRequest>(`${this._baseUrl}`).pipe(
-      map((response: any) =>
-        console.log(response))
-    )
+  /* POST: add a new product  */
+  public addProduct(product: ProductRequest): Observable<ProductRequest> {
+
+    return this._httpClient.post<ProductRequest>(this._baseUrl, product, this.httpOptions)
+      .pipe(
+        tap((newProduct: Product) => this.log(`added product w/ id=${newProduct.id}`)),
+        catchError(this._handleError<Product>(`addProduct`))
+    );
+  }
+
+/* PUT: update existing product */
+  public updateProduct(product: ProductRequest): Observable<ProductRequest> {
+
+    return this._httpClient.put<ProductRequest>(this._baseUrl, product, this.httpOptions)
+      .pipe(
+        tap(_ => this.log(`deleted product id=${product.id}`)),
+        catchError(this._handleError<any>('updateHero'))
+    );
+  }
+
+  /* DELETE: remove product from db */
+  public deleteProduct(id: number): Observable<Product> {
+    const url = `${this._baseUrl}/${id}`;
+
+    return this._httpClient.delete<Product>(url, this.httpOptions)
+      .pipe(
+        tap(_ => this.log(`deleted product id=${id}`)),
+        catchError(this._handleError<Product>('deleteProduct'))
+      );
+  }
+
+  /* -- PRIVATE METHODS -- */
+  private log(message: string) {
+    this._messageService.add(`ProductService: ${message}`);
+  }
+
+  private _handleError<T>(operation = 'operation', result?: T) {
+    return (error: any): Observable<T> => {
+
+      // TODO: send the error to remote logging infrastructure
+      console.error(error); // log to console instead
+
+      // TODO: better job of transforming error for user consumption
+      this.log(`${operation} failed: ${error.message}`);
+
+      // Let the app keep running by returning an empty result.
+      return of(result as T);
+    };
   }
 
 }

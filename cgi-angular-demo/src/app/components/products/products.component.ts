@@ -35,12 +35,9 @@ export class ProductsComponent implements OnInit {
 /* -- PUBLIC METHODS -- */
 
   public ngOnInit(): void {
-    this._retrieveProducts();
+    this._getProducts();
   }
 
-  // public openSnackBar(message: string, action: string) {
-  //   this._snackBar.open(message, action);
-  // }
   public onProductEdit(product: Product): void {
     this._editing = true;
 
@@ -52,9 +49,10 @@ export class ProductsComponent implements OnInit {
   }
 
   public onProductRemove(product: Product): void {
-    if (product && product.id)
-      this._productServices.removeProduct().subscribe(() => this._retrieveProducts());
-    console.log(product)
+    this.products = this.products.filter(p => p !== product);
+    if (product.id != null) {
+      this._productServices.deleteProduct(product.id).subscribe();
+    }
   }
 
   public onSubmit(): void {
@@ -64,32 +62,26 @@ export class ProductsComponent implements OnInit {
       price: this.form.value.price
     };
 
-    if (this._editing) {
-
-
-      this._productServices.updateProduct(body).subscribe(() => {
-
-        this._retrieveProducts();
-      });
+    if(this._editing) {
+      this._productServices.updateProduct(body)
+        .subscribe(() => {
+          this._getProducts();
+        });
     } else {
-      this._productServices.createProduct(body).subscribe(() => {
-
-        this._retrieveProducts()
-      });
+      this._productServices.addProduct(body)
+        .subscribe(() => {
+          this._getProducts();
+        })
     }
-
-
   }
 
 
   /* -- PRIVATE METHODS -- */
 
-  private _getProducts(): void {
-    this.products = this._productServices.products;
-  }
 
-  private _retrieveProducts(): void {
-    this._productServices.retrieveProducts().subscribe(() => this._getProducts());
+  private _getProducts(): void {
+    this._productServices.getProducts()
+      .subscribe(products => this.products = products);
   }
 
   // private _triggerSnackBar(message: string): void {
